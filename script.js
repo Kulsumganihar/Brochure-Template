@@ -1,24 +1,45 @@
 // All scripts wrapped to ensure DOM is ready
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   /* =========================
-     Mobile Nav / Drawer
-  ============================ */
+      Mobile Nav / Drawer
+    ============================ */
   const burger = document.querySelector(".burger");
   const drawer = document.getElementById("mobile-drawer");
 
   if (burger && drawer) {
-    const toggle = () => {
-      const open = drawer.classList.toggle("open");
-      burger.setAttribute("aria-expanded", String(open));
-      drawer.setAttribute("aria-hidden", String(!open));
-    };
+    // Open / close on burger click
+    burger.addEventListener("click", (e) => {
+      e.stopPropagation(); // Prevent immediate close by document click
+      const isOpen = drawer.classList.toggle("open");
+      burger.classList.toggle("open", isOpen);
+      burger.setAttribute("aria-expanded", String(isOpen));
+      drawer.setAttribute("aria-hidden", String(!isOpen));
+      document.body.classList.toggle("drawer-open", isOpen);
+    });
 
-    burger.addEventListener("click", toggle);
-    drawer.querySelectorAll(".drawer-link").forEach((a) =>
-      a.addEventListener("click", () => drawer.classList.remove("open"))
-    );
+    // Close drawer when a link is clicked
+    drawer.querySelectorAll(".drawer-link").forEach((link) => {
+      link.addEventListener("click", () => closeDrawer());
+    });
+
+    // Close drawer when clicking outside of it
+    document.addEventListener("click", (e) => {
+      const isClickInsideDrawer = drawer.contains(e.target);
+      const isBurgerClick = burger.contains(e.target);
+
+      if (!isClickInsideDrawer && !isBurgerClick && drawer.classList.contains("open")) {
+        closeDrawer();
+      }
+    });
+
+    function closeDrawer() {
+      drawer.classList.remove("open");
+      burger.classList.remove("open");
+      burger.setAttribute("aria-expanded", "false");
+      drawer.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("drawer-open");
+    }
   }
-
   /* =========================
      Smooth Scroll
   ============================ */
